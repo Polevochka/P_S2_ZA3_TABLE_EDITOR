@@ -8,7 +8,7 @@ object Form1: TForm1
   ClientWidth = 420
   Menu = MainMenu1
   OnCreate = FormCreate
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '1.8.2.0'
   object StringGrid1: TStringGrid
     Left = 24
     Height = 328
@@ -49,11 +49,11 @@ object Form1: TForm1
     object MenuItem8: TMenuItem
       Caption = 'Обработка'
       object MenuItem9: TMenuItem
-        Caption = 'MenuItem9'
+        Caption = 'Обратить порядок'
         OnClick = MenuItem9Click
       end
       object MenuItem10: TMenuItem
-        Caption = 'MenuItem10'
+        Caption = 'Выбор по маске'
         OnClick = MenuItem10Click
       end
     end
