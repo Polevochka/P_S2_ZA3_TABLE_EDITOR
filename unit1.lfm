@@ -49,7 +49,7 @@ object Form1: TForm1
     object MenuItem8: TMenuItem
       Caption = 'Обработка'
       object MenuItem9: TMenuItem
-        Caption = 'MenuItem9'
+        Caption = 'Упорядочить п ооценке'
         OnClick = MenuItem9Click
       end
       object MenuItem10: TMenuItem

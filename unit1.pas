@@ -316,10 +316,132 @@ end;
 
 // Обработка
 
-{Обработка 1}
-procedure TForm1.MenuItem9Click(Sender: TObject);
+{Вставить студента s в таблицу StringGrid1 на позицию r}
+procedure InsertStud(r: integer; s: Stud);
+var endStud: integer; // позиция последнего студента в таблице
+    i: integer;
 begin
+  // Чтобы меньше писать Form1.StringGrid1 используем with
+  with Form1.StringGrid1 do
+  begin
+    // Находим число студентов в таблице
+    // начинаем с 1, так как i=0 - это заголовок
+    i:= 1;
+    while (Cells[0,i] <> '') and (i < RowCount-1) do
+      i := i + 1;
 
+    // после цикла i - это позиция первой пустой строки в таблице
+    // поэтому нужно отнять 1 от i
+    // позиция последнего студента
+    endStud := i-1;
+
+    // сдвигаем всех студентов, что ниже r на одну позицию вниз
+    for i:= endStud downto r do
+    begin
+      Cells[0,i+1]:= Cells[0,i];  // Его Номер
+      Cells[1,i+1]:= Cells[1,i];  // Фамилия
+      Cells[2,i+1]:= Cells[2,i];  // Группа
+      Cells[3,i+1]:= Cells[3,i];
+      Cells[4,i+1]:= Cells[4,i];   {И оценки}
+      Cells[5,i+1]:= Cells[5,i];
+    end;
+
+    // Допустим r = 4
+    // Было: s1 s2 s3 s4 s5 s6
+    // Стало: s1 s2 s3 s4 s4 s5 s6
+    //                   ^
+    //                   |
+    // Теперь можно как раз записать нашего студент на 4-ую позицию
+
+    // теперь можно спокойно записать студента на позицию r
+    Cells[0,r]:= IntToStr(s.No);  // Его Номер
+    Cells[1,r]:= s.Name;          // Фамилия
+    Cells[2,r]:= s.Gr;            // Группа
+    Cells[3,r]:= IntToStr(s.o1);
+    Cells[4,r]:= IntToStr(s.o2);   {И оценки}
+    Cells[5,r]:= IntToStr(s.o3);
+
+    // Стало: s1 s2 s3 s s4 s5 s6
+
+  end;
+
+
+end;
+
+
+{Упорядочить по ооценке}
+procedure TForm1.MenuItem9Click(Sender: TObject);
+var f: file of stud;  // файл со студентами
+    s: stud;  // переменная типа студента - для чтения из файла
+    numMark: integer; // Номер оценки
+    scoreStud: integer; // оценка студента
+    countStud: integer; // счётчик студентов в файле
+    i_ins: integer; // индекс вставки студента
+    i: integer;
+begin
+  // Получаем номер оценки по которой будем сортировать
+  // Получаем до тех пор пока пользователь не введёт верное значение
+  numMark := StrToInt(inputbox('Ввод номера оценки', 'Введите число от 1 до 3', '1'));
+  while (numMark < 1) or (numMark > 3) do
+  begin
+    ShowMessage('Bad Enter');
+    numMark := StrToInt(inputbox('Ввод номера оценки', 'Введите число от 1 до 3', '1'));
+  end;
+
+  // Будем что-то записывать в таблицу
+  // Значит надо её очитсить
+  ClearTab;
+
+  // здесь считаем, что пользователь уже открыл какой-то файл
+  // и sf - НЕ пустая переменная
+
+  // Открываем файл студентов на ЧТЕНИЕ
+  AssignFile(f, sf);
+  Reset(f);
+
+  // сначла считаем из файла одного студента
+  read(f, s);
+  // и вставим его в таблицу
+  // на первую позицию, так как на 0 позиции - заголовок
+  InsertStud(1, s);
+
+  // Счётчик студентов в таблице = 1
+  countStud:= 1;
+
+  // Обходим всех студентов в файле
+  While (not EOF(f)) do
+  begin
+    // Считываем одного студента
+    read(f, s);
+
+    // находим оценку студента по которой будем сравнивать
+    case numMark of
+      1: scoreStud:= s.o1;
+      2: scoreStud:= s.o2;
+      3: scoreStud:= s.o3;
+    end;
+
+    // Находим индекс вставки студента в таблицу
+    i_ins:= 1;
+    for i:=1 to countStud do
+    begin
+      // Чтобы узнать оценку студента уже записанного в таблицу достаточно
+      // к numMark прибавить два - получим стобец нужной оценки
+      if (scoreStud <= StrToInt(StringGrid1.Cells[numMark+2, i])) then
+      begin
+        // у студента s - бал ниже текущего студента
+        // значит его нужно вставить ЗА(i+1) студентом, что уже в таблице
+        i_ins := i+1;
+      end;
+    end;
+
+    // вставляем студента на найденную позицию
+    InsertStud(i_ins, s);
+    // Увеличиваем счётчик студентов
+    countStud := countStud + 1;
+  end;
+  // Прочитали весь файл -> Надо его закрыть
+  CloseFile(f);
 end;
 
 {Обработка 2}
